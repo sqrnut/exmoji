@@ -5,33 +5,23 @@
 // short_names:  char.short_names,
 // text:         char.text
 
-// Emojione 2.0
+// Emojione 6.5
 {
-  "grinning":
-  {
-    "unicode":"1f600",
-    "unicode_alt":"",
-    "code_decimal":"&#128512;",
+  "1f600": {
     "name":"grinning face",
+    "category":"people",
     "shortname":":grinning:",
-    "category":"people",
-    "emoji_order":"1",
-    "aliases":[],
-    "aliases_ascii":[],
-    "keywords":["happy","smiley","emotion"]
+    "shortname_alternates":[],
+    "keywords":["face","grin","uc6"],
+    "unicode_output":"1f600"
   },
-  "grin":
-  {
-    "unicode":"1f601",
-    "unicode_alt":"",
-    "code_decimal":"&#128513;",
-    "name":"grinning face with smiling eyes",
-    "shortname":":grin:",
+  "1f603": {
+    "name":"grinning face with big eyes",
     "category":"people",
-    "emoji_order":"2",
-    "aliases":[],
-    "aliases_ascii":[],
-    "keywords":["happy","silly","smiley","emotion","good","selfie"]
+    "shortname":":smiley:",
+    "shortname_alternates":[],
+    "keywords":["face","mouth","open","smile","uc6"],
+    "unicode_output":"1f603"
   }
 }
 
@@ -111,6 +101,35 @@
   }
 }
 
+// Emojione 2.0
+{
+  "grinning":
+  {
+    "unicode":"1f600",
+    "unicode_alt":"",
+    "code_decimal":"&#128512;",
+    "name":"grinning face",
+    "shortname":":grinning:",
+    "category":"people",
+    "emoji_order":"1",
+    "aliases":[],
+    "aliases_ascii":[],
+    "keywords":["happy","smiley","emotion"]
+  },
+  "grin":
+  {
+    "unicode":"1f601",
+    "unicode_alt":"",
+    "code_decimal":"&#128513;",
+    "name":"grinning face with smiling eyes",
+    "shortname":":grin:",
+    "category":"people",
+    "emoji_order":"2",
+    "aliases":[],
+    "aliases_ascii":[],
+    "keywords":["happy","silly","smiley","emotion","good","selfie"]
+  }
+}
 
 // Exmoji original
 {
