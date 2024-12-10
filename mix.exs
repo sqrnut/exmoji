@@ -5,7 +5,7 @@ defmodule Exmoji.Mixfile do
     [
       app: :exmoji,
       version: "0.3.0",
-      elixir: "~> 1.0",
+      elixir: "~> 1.17",
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
       name: "Exmoji",
@@ -37,7 +37,7 @@ defmodule Exmoji.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [applications: []]
+    [applications: [:jason]]
   end
 
   # Dependencies
@@ -45,7 +45,7 @@ defmodule Exmoji.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:poison, "~> 2.0"},
+      {:jason, "~> 1.4"},
       {:excoveralls, "~> 0.18.3", only: :dev},
       {:benchfella, "~> 0.3.1", only: :dev},
       {:earmark, "~> 1.4.0", only: :dev},

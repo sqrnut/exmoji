@@ -19,29 +19,42 @@ defmodule Exmoji do
   vendor_data_file = "lib/vendor/emoji-data/emoji_strategy.json"
   @external_resource vendor_data_file
 
-  rawfile = File.read! vendor_data_file
-  rawdata = Poison.decode! rawfile
-  emoji_chars = for char <- rawdata do
-    {unicode, char} = char
+  file_string = File.read!(vendor_data_file)
+  rawdata = Jason.decode!(file_string)
 
-    %EmojiChar{
-      name:         char["name"],
-      unified:      unicode,
-      variations:   if char["unicode_output"] != nil && char["unicode_output"] != unicode do [ char["unicode_output"] ] else [] end,
-      short_name:   String.trim(char["shortname"], ":"),
-      short_names:  char["shortname_alternates"]
-      |> Enum.map( fn(alias) -> String.trim(alias, ":") end )
-      |> Enum.concat( [String.trim(char["shortname"], ":")] )
-      |> Enum.uniq
-      |> Enum.to_list,
-      text:         if char["ascii"] != nil do char["ascii"] else [] end
-    }
-  end
+  emoji_chars =
+    for char <- rawdata do
+      {unicode, char} = char
+
+      %EmojiChar{
+        name: char["name"],
+        unified: unicode,
+        variations:
+          if char["unicode_output"] != nil && char["unicode_output"] != unicode do
+            [char["unicode_output"]]
+          else
+            []
+          end,
+        short_name: String.trim(char["shortname"], ":"),
+        short_names:
+          char["shortname_alternates"]
+          |> Enum.map(fn alias -> String.trim(alias, ":") end)
+          |> Enum.concat([String.trim(char["shortname"], ":")])
+          |> Enum.uniq()
+          |> Enum.to_list(),
+        text:
+          if char["ascii"] != nil do
+            char["ascii"]
+          else
+            []
+          end
+      }
+    end
 
   @emoji_chars emoji_chars
 
   @doc """
-  Returns a list of all #{Enum.count @emoji_chars} Emoji characters as `EmojiChar`.
+  Returns a list of all #{Enum.count(@emoji_chars)} Emoji characters as `EmojiChar`.
   """
   def all, do: @emoji_chars
 
@@ -56,7 +69,6 @@ defmodule Exmoji do
   """
   @all_variant_cache Enum.filter(@emoji_chars, &EmojiChar.variant?/1)
   def all_with_variants, do: @all_variant_cache
-
 
   @doc """
   Returns a list of all known Emoji characters rendered as Unicode bitstrings.
@@ -73,12 +85,12 @@ defmodule Exmoji do
     case Keyword.get(opts, :include_variants, false) do
       false ->
         Enum.map(@emoji_chars, &EmojiChar.render/1)
+
       true ->
         Enum.map(@emoji_chars, &EmojiChar.chars/1)
-        |> List.flatten
+        |> List.flatten()
     end
   end
-
 
   @doc """
   Returns a list of all known codepoints representing Emoji characters.
@@ -89,13 +101,13 @@ defmodule Exmoji do
   def codepoints(opts \\ []) do
     case Keyword.get(opts, :include_variants, false) do
       false ->
-        Enum.map(@emoji_chars, &(&1.unified))
+        Enum.map(@emoji_chars, & &1.unified)
+
       true ->
         Enum.map(@emoji_chars, &EmojiChar.codepoint_ids/1)
-        |> List.flatten
+        |> List.flatten()
     end
   end
-
 
   @doc """
   Finds any `EmojiChar` that contains given string in its official name.
@@ -113,9 +125,8 @@ defmodule Exmoji do
   """
   def find_by_name(name) do
     name = String.upcase(name)
-    Enum.filter( @emoji_chars, &(is_binary(&1.name) && String.contains?(&1.name, name)) )
+    Enum.filter(@emoji_chars, &(is_binary(&1.name) && String.contains?(&1.name, name)))
   end
-
 
   @doc """
   Find all `EmojiChar` that match substring in any of their associated short
@@ -123,13 +134,12 @@ defmodule Exmoji do
   """
   def find_by_short_name(sname) do
     target = String.downcase(sname)
-    Enum.filter( @emoji_chars, &(matches_short_name(&1, target)) )
+    Enum.filter(@emoji_chars, &matches_short_name(&1, target))
   end
 
   defp matches_short_name(%EmojiChar{} = ec, target) do
-    Enum.any?( ec.short_names, &(String.contains?(&1, target)) )
+    Enum.any?(ec.short_names, &String.contains?(&1, target))
   end
-
 
   @doc """
   Finds an `EmojiChar` based on its short name keyword.
@@ -139,29 +149,29 @@ defmodule Exmoji do
   a keyword.
   """
   def from_short_name(sname) do
-    sname |> String.downcase |> _from_short_name
+    sname |> String.downcase() |> _from_short_name
   end
 
   for ec <- @emoji_chars, sn <- ec.short_names do
-    defp _from_short_name( unquote(sn) ), do: unquote(Macro.escape(ec))
+    defp _from_short_name(unquote(sn)), do: unquote(Macro.escape(ec))
   end
-  defp _from_short_name(_), do: nil
 
+  defp _from_short_name(_), do: nil
 
   @doc """
   Finds a specific `EmojiChar` based on the unified codepoint ID.
   """
   def from_unified(uid) do
-    uid |> String.downcase |> _from_unified
+    uid |> String.downcase() |> _from_unified
   end
 
   for ec <- @emoji_chars, cp <- EmojiChar.codepoint_ids(ec) do
     # IO.inspect cp
     # IO.inspect ec
-    defp _from_unified( unquote(String.downcase(cp)) ), do: unquote(Macro.escape(ec))
+    defp _from_unified(unquote(String.downcase(cp))), do: unquote(Macro.escape(ec))
   end
-  defp _from_unified(_), do: nil
 
+  defp _from_unified(_), do: nil
 
   @doc """
   Convert a unified ID directly to its bitstring glyph representation.
@@ -175,10 +185,9 @@ defmodule Exmoji do
   def unified_to_char(uid) do
     uid
     |> String.split("-")
-    |> Enum.map( &(String.to_integer(&1, 16)) )
-    |> List.to_string
+    |> Enum.map(&String.to_integer(&1, 16))
+    |> List.to_string()
   end
-
 
   @doc """
   Convert a native bitstring glyph to its unified codepoint ID.
@@ -197,14 +206,15 @@ defmodule Exmoji do
   """
   def char_to_unified(char) do
     char
-    |> String.codepoints
+    |> String.codepoints()
     |> Enum.map(&padded_hex_string/1)
     |> Enum.join("-")
-    |> String.upcase
+    |> String.upcase()
   end
+
   # produce a string representation of the integer value of a codepoint, in hex
   # this should be zero-padded to a minimum of 4 digits
-  defp padded_hex_string(<< cp_int_value :: utf8 >>) do
+  defp padded_hex_string(<<cp_int_value::utf8>>) do
     cp_int_value |> Integer.to_string(16) |> String.pad_leading(4, "0")
   end
 end
